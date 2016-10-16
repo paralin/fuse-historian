@@ -124,3 +124,14 @@ This will tell historian to take the temperature field from any `sensor_rx.senso
  - If it receives another reading within 20 seconds, drop it.
 
 This way we can keep streams of observed data for each receiver, as well as aggregated data from all receivers.
+
+RethinkDB Table Structure
+=========================
+
+Each of the streams are stored in the `streams` table, and each stream gets its own table full of entries.
+
+```
+└── region_ca1
+    ├── stream_plane_1_flight_controller_state
+    └── streams
+```
