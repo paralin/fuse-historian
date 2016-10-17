@@ -135,3 +135,20 @@ Each of the streams are stored in the `streams` table, and each stream gets its 
     ├── stream_plane_1_flight_controller_state
     └── streams
 ```
+
+Entity Types
+============
+
+These are the entities in this system:
+
+ - **Device**: a container of components, and states.
+ - **Component** a component on a device.
+ - **State** - a state stream in a component on a device.
+
+Scaling
+=======
+
+For this to scale, we need the following:
+
+ - [ ] Locking mechanism for writing
+ - [ ] Watch for new entries and feed into local WriteCursor

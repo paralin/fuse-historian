@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/fuserobotics/historian"
 	"github.com/fuserobotics/historian/service"
 	"github.com/fuserobotics/reporter/remote"
 
@@ -17,16 +18,21 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	r "gopkg.in/dancannon/gorethink.v2"
 )
 
 var RuntimeArgs struct {
-	GrpcPort int
-	HttpPort int
+	GrpcPort  int
+	HttpPort  int
+	RethinkIp string
+	DbName    string
 }
 
 func bindFlags() {
 	flag.IntVar(&RuntimeArgs.GrpcPort, "grpcport", 6000, "GRPC port to bind")
 	flag.IntVar(&RuntimeArgs.HttpPort, "httpport", 9085, "HTTP port to bind")
+	flag.StringVar(&RuntimeArgs.DbName, "db", "", "Database name")
+	flag.StringVar(&RuntimeArgs.RethinkIp, "r", "", "rethink ip, for example rethinkdb.rethinkdb.svc.cluster.local")
 	flag.CommandLine.Usage = func() {
 		fmt.Println(`historian
 Starts the API at the ports specified.
@@ -69,6 +75,9 @@ func verifyArgs() error {
 	if err := verifyPort(RuntimeArgs.HttpPort); err != nil {
 		return fmt.Errorf("HTTP port invalid: %v", err)
 	}
+	if RuntimeArgs.DbName == "" {
+		return fmt.Errorf("Please specify db with --db")
+	}
 
 	return nil
 }
@@ -86,6 +95,14 @@ func runHttpService(endpoint, grpcEndpoint string, ctx context.Context) error {
 	return nil
 }
 
+func setupRethink() (*r.Session, error) {
+	r.SetTags("gorethink", "json")
+	return r.Connect(r.ConnectOpts{
+		Address:  RuntimeArgs.RethinkIp,
+		Database: RuntimeArgs.DbName,
+	})
+}
+
 func main() {
 	// Log to stdout
 	flag.Lookup("logtostderr").Value.Set("true")
@@ -101,10 +118,19 @@ func main() {
 		glog.Fatalf("Error with args: %v\n", err)
 	}
 
+	glog.Info("Connecting to database...")
+	rctx, err := setupRethink()
+	if err != nil {
+		glog.Fatalf("Error setting up rethink %v\n", err)
+	}
+	defer rctx.Close()
+
 	glog.Info("Registering services...")
 
+	historianInstance := historian.NewHistorian(rctx)
+
 	grpcServer := grpc.NewServer()
-	service.RegisterServer(grpcServer)
+	service.RegisterServer(grpcServer, rctx, historianInstance)
 
 	glog.Info("Starting up services...")
 	httpEndpoint := fmt.Sprintf("0.0.0.0:%d", RuntimeArgs.HttpPort)
@@ -140,5 +166,5 @@ func main() {
 	<-sigs
 
 	glog.Info("Exiting...")
-	grpcServer.GracefulStop()
+	// grpcServer.GracefulStop()
 }

@@ -1,0 +1,17 @@
+syntax = "proto3";
+package dbproto;
+
+import "github.com/fuserobotics/statestream/config.proto";
+
+message Stream {
+  // ID of the stream (fields 2 + 3 + 4)
+  string id = 1;
+  // Name of the device, or null for aggregate.
+  string device_hostname = 2;
+  // Component name
+  string component_name = 3;
+  // Stream name
+  string state_name = 4;
+  // Rate config
+  stream.Config config = 5;
+}
