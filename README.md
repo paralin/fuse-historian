@@ -151,4 +151,4 @@ Scaling
 For this to scale, we need the following:
 
  - [ ] Locking mechanism for writing
- - [ ] Watch for new entries and feed into local WriteCursor
+ - [x] Watch for new entries and feed into local WriteCursor
