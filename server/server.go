@@ -128,6 +128,9 @@ func main() {
 	glog.Info("Registering services...")
 
 	historianInstance := historian.NewHistorian(rctx)
+	if err := historianInstance.Init(); err != nil {
+		glog.Fatalf("Error initializing historian: %v", err)
+	}
 
 	grpcServer := grpc.NewServer()
 	service.RegisterServer(grpcServer, rctx, historianInstance)
