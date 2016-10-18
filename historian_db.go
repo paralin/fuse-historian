@@ -68,7 +68,10 @@ func (h *Historian) handleChange(cha *streamChange) {
 	if cha.OldValue != nil {
 		glog.Infof("Removing old stream %s", cha.OldValue.Id)
 		delete(h.KnownStreams, cha.OldValue.Id)
-		delete(h.Streams, cha.OldValue.Id)
+		if oi, ok := h.Streams[cha.OldValue.Id]; ok {
+			oi.Dispose()
+			delete(h.Streams, cha.OldValue.Id)
+		}
 		invalidHostname = cha.OldValue.DeviceHostname
 	}
 

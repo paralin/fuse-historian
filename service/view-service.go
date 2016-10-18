@@ -103,3 +103,7 @@ func (h *HistorianViewService) ListStates(c context.Context, req *view.ListState
 
 	return res, nil
 }
+
+func (h *HistorianViewService) GetStateHistory(req *view.StateHistoryRequest, srvstream view.ReporterService_GetStateHistoryServer) error {
+	return nil
+}

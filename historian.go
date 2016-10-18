@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/fuserobotics/historian/dbproto"
 	"github.com/fuserobotics/reporter/remote"
+	"github.com/fuserobotics/statestream"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
 
@@ -14,6 +15,12 @@ type streamChange struct {
 	NewValue *dbproto.Stream `gorethink:"new_val,omitempty"`
 	OldValue *dbproto.Stream `gorethink:"old_val,omitempty"`
 	State    string          `gorethink:"state,omitempty"`
+}
+
+type streamEntryChange struct {
+	NewValue *stream.StreamEntry `gorethink:"new_val,omitempty"`
+	OldValue *stream.StreamEntry `gorethink:"old_val,omitempty"`
+	State    string              `gorethink:"state,omitempty"`
 }
 
 type Historian struct {
@@ -61,6 +68,7 @@ func (h *Historian) GetStream(id string) (str *Stream, ferr error) {
 		return nil, err
 	}
 
+	// Note: be sure to call Dispose() when deleting.
 	h.Streams[id] = str
 	return str, nil
 }
