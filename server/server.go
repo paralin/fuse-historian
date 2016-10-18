@@ -13,6 +13,7 @@ import (
 	"github.com/fuserobotics/historian"
 	"github.com/fuserobotics/historian/service"
 	"github.com/fuserobotics/reporter/remote"
+	"github.com/fuserobotics/reporter/view"
 
 	"github.com/golang/glog"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -86,6 +87,10 @@ func runHttpService(endpoint, grpcEndpoint string, ctx context.Context) error {
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 	err := remote.RegisterReporterRemoteServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, opts)
+	if err != nil {
+		return err
+	}
+	err = view.RegisterReporterServiceHandlerFromEndpoint(ctx, mux, grpcEndpoint, opts)
 	if err != nil {
 		return err
 	}

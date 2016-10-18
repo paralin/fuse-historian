@@ -10,7 +10,6 @@ import (
 	"github.com/fuserobotics/statestream"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
 
@@ -70,11 +69,4 @@ func (s *HistorianRemoteService) PushStreamEntry(c context.Context, req *remote.
 		}
 	}
 	return res, nil
-}
-
-func RegisterServer(server *grpc.Server, rctx *r.Session, historianInstance *historian.Historian) {
-	remote.RegisterReporterRemoteServiceServer(server, &HistorianRemoteService{
-		Session:   rctx,
-		Historian: historianInstance,
-	})
 }

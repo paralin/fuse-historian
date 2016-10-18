@@ -10,7 +10,7 @@ import (
 // Retrieve the first snapshot before timestamp. Return nil for no data.
 func (s *Stream) GetSnapshotBefore(timestamp time.Time) (*stream.StreamEntry, error) {
 	entry := &stream.StreamEntry{}
-	query := s.dataTable.Filter(r.Row.Field("type").Eq(stream.StreamEntrySnapshot)).Filter(r.Row.Field("timestamp").Lt(timestamp))
+	query := s.dataTable.Filter(r.Row.Field("type").Eq(int(stream.StreamEntrySnapshot))).Filter(r.Row.Field("timestamp").Lt(timestamp))
 	cursor, err := query.Run(s.h.rctx)
 	defer cursor.Close()
 	if err != nil {
@@ -30,7 +30,7 @@ func (s *Stream) GetEntryAfter(timestamp time.Time, filterType stream.StreamEntr
 	entry := &stream.StreamEntry{}
 	query := s.dataTable
 	if filterType != stream.StreamEntryAny {
-		query = query.Filter(r.Row.Field("type").Eq(filterType))
+		query = query.Filter(r.Row.Field("type").Eq(int(filterType)))
 	}
 	query = query.Filter(r.Row.Field("timestamp").Gt(timestamp))
 	cursor, err := query.Run(s.h.rctx)
