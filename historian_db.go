@@ -52,7 +52,8 @@ func (h *Historian) backgroundSync(initChan chan error) (disposed bool) {
 			h.handleChange(&cha)
 		}
 		if err := cursor.Err(); err != nil {
-			glog.Warningf("Error ")
+			glog.Warningf("Error listening to remote changes, %v", err)
+			return
 		}
 	}
 }

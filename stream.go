@@ -34,6 +34,7 @@ func (h *Historian) NewStream(data *dbproto.Stream) (*Stream, error) {
 	return str, nil
 }
 
+// The stream ID is the same as the tabe name.
 func StreamTableName(deviceHostname, componentName, stateName string) string {
 	var buf bytes.Buffer
 
