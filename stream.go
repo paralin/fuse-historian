@@ -11,6 +11,8 @@ import (
 	r "gopkg.in/dancannon/gorethink.v2"
 )
 
+var changeUnnecessaryError error = errors.New("change applied locally already")
+
 type Stream struct {
 	dispose chan bool
 	h       *Historian
@@ -130,12 +132,17 @@ func (s *Stream) handleChange(cha *streamEntryChange, writeCursor *stream.Cursor
 		return nil
 	}
 
-	wcts := writeCursor.ComputedTimestamp()
+	var wcts time.Time
+	// wait until all local writes are done
+	writeCursor.WriteGuard(func() error {
+		wcts = writeCursor.ComputedTimestamp()
+		return nil
+	})
 	if cha.NewValue.Timestamp.Before(wcts) || cha.NewValue.Timestamp.Equal(wcts) {
-		glog.Infof("Ignoring stream entry change as it's before the latest computed timestamp.")
+		// glog.Infof("Ignoring stream entry change as it's before the latest computed timestamp.")
 		return nil
 	}
-	glog.Infof("Handling stream entry for %s someone else wrote at ts %v.", s.Data.Id, cha.NewValue.Timestamp)
+	glog.Infof("Handling stream entry for %s someone else wrote at ts %v local ts %v.", s.Data.Id, cha.NewValue.Timestamp, wcts)
 	if err := writeCursor.HandleEntry(cha.NewValue); err != nil {
 		return err
 	}

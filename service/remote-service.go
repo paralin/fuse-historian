@@ -51,7 +51,7 @@ func (s *HistorianRemoteService) PushStreamEntry(c context.Context, req *remote.
 	if err != nil {
 		return nil, err
 	}
-	err = state.SaveEntry(&stream.StreamEntry{
+	err = state.StateStream.WriteEntry(&stream.StreamEntry{
 		Timestamp: util.NumberToTime(req.Entry.Timestamp),
 		Data:      stream.StateData(jsonData),
 		Type:      stream.StreamEntryType(req.Entry.EntryType),
