@@ -38,7 +38,7 @@ The current state for a plane might look something like this:
 }
 ```
 
-Current state is a predefined Protobuf structure, but stored as JSON in Consul and in the database (rethink is a key/value db). A cluster-local service named `historian` watches this live state and replicates it to a RethinkDB table using the model described in `COMPONENTS.md` - keyframes, and changes.
+Current state is a predefined Protobuf structure, but stored as JSON in `reporter` and in the database (rethink is a key/value db). A cluster-local service named `historian` can act as a remote sink for keyframes and changes as described in `COMPONENTS.md`.
 
 State can be "aggregated" or simplified down the line by deleting the interim change records and keeping just the keyframes, and by adjusting the keyframes to set intervals in time by calculating the state at time intervals and recording new keyframe entries.
 
@@ -152,3 +152,19 @@ For this to scale, we need the following:
 
  - [ ] Locking mechanism for writing
  - [x] Watch for new entries and feed into local WriteCursor
+
+Features
+========
+
+Features so far (of both reporter and historian):
+
+ - [x] Record live state
+ - [x] Get state at any point in time
+ - [x] Configure keyframe and mutation frequency
+ - [x] Request extended history and batch entries on the server
+ - [x] Define remotes and reliably push history to remotes.
+ - [x] Generic interfaces between components (for extendability)
+ - [ ] Aggregation - combine multiple incoming streams into one.
+ - [ ] Aggregation - re-distribute entries in a stream.
+
+Most of everything is done.
