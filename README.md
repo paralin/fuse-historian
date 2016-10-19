@@ -148,10 +148,11 @@ These are the entities in this system:
 Scaling
 =======
 
-For this to scale, we need the following:
+Features required for scaling (now complete):
 
- - [ ] Locking mechanism for writing
  - [x] Watch for new entries and feed into local WriteCursor
+
+No locking is required as reporter<->historian is a one-to-one relationship. There is one reporter on each device, and that reporter can be connected to one historian at a time. Thus, there is an implicit lock over the historian write cursor for each stream.
 
 Features
 ========
