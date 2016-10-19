@@ -1,3 +1,6 @@
+IMAGE=fuserobotics/historian
+VERSION=latest
+
 all: protogen
 PROTOWRAP=\
 	protowrap \
@@ -16,3 +19,16 @@ protogen:
 		$(PROTOWRAP) $${CWD}/**/*.proto
 	go install -v github.com/fuserobotics/reporter/dbproto
 	rm ./dbproto/*.swagger.json
+
+dumb-init:
+	wget -O dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.1.1/dumb-init_1.1.1_amd64
+
+historian:
+	CGO_ENABLED=0 go build -v -o historian ./server
+
+docker: dumb-init historian
+	docker build -t "$(IMAGE):$(VERSION)" .
+
+push: docker
+	docker tag $(IMAGE):$(VERSION) registry.fusebot.io/$(IMAGE):$(VERSION)
+	docker push registry.fusebot.io/$(IMAGE):$(VERSION)
